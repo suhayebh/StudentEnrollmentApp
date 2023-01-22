@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using StudentEnrollment.Data.Configuration;
+using StudentEnrollment.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,5 +29,27 @@ namespace StudentEnrollment.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Enrollment> Enrollments{ get; set; }
+    }
+
+    public class StudentEnrollmentDbContextFactory : IDesignTimeDbContextFactory<StudentEnrollementDbContext>
+    {
+        public StudentEnrollementDbContext CreateDbContext(string[] args)
+        {
+            //Get environement
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            //Build config
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            //Get connection string
+            var optionBuilder = new DbContextOptionsBuilder<StudentEnrollementDbContext>();
+            var connectionString = config.GetConnectionString("StudentDbConnection");
+            optionBuilder.UseSqlServer(connectionString); 
+            return new StudentEnrollementDbContext(optionBuilder.Options);
+
+        }
     }
 }

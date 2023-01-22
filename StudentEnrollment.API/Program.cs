@@ -1,5 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentEnrollment.Data;
+using StudentEnrollment.API.Endpoints;
+using StudentEnrollment.API.Configurations;
+using StudentEnrollment.Data.Contracts;
+using StudentEnrollment.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +19,12 @@ builder.Services.AddDbContext<StudentEnrollementDbContext>(options => {
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IEnrollmentRespository, EnrollementRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository > ();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
+builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => policy
@@ -35,33 +46,8 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 
-
-//EndPoints
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-
+app.MapStudentEndpoints();
+app.MapEnrollmentEndpoints();
+app.MapCourseEndpoints();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -1,11 +1,8 @@
-﻿namespace StudentEnrollment.Data
+﻿namespace StudentEnrollment.API.DTOs.Course
 {
-    public class Course : BaseEntity 
+    public class CreateCourseDTO
     {
         public string Title { get; set; }
         public int Credits { get; set; }
-
     }
-
-
 }

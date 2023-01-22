@@ -5,6 +5,11 @@ using StudentEnrollment.API.Endpoints;
 using StudentEnrollment.API.Configurations;
 using StudentEnrollment.Data.Contracts;
 using StudentEnrollment.Data.Repositories;
+using Microsoft.AspNetCore.Identity;
+using StudentEnrollment.Data.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +19,26 @@ builder.Services.AddDbContext<StudentEnrollementDbContext>(options => {
     options.UseSqlServer(connection);
 });
 
+builder.Services.AddIdentityCore<SchoolUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<StudentEnrollementDbContext>();
 
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;  
+})
+    .AddJwtBearer(options => {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+        };
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -49,5 +73,6 @@ app.UseCors("AllowAll");
 app.MapStudentEndpoints();
 app.MapEnrollmentEndpoints();
 app.MapCourseEndpoints();
+app.MapAuthenticationEndpoints();
 
 app.Run();

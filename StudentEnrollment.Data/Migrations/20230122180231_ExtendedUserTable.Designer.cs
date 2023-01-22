@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentEnrollment.Data;
 
@@ -11,9 +12,11 @@ using StudentEnrollment.Data;
 namespace StudentEnrollment.Data.Migrations
 {
     [DbContext(typeof(StudentEnrollementDbContext))]
-    partial class StudentEnrollementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230122180231_ExtendedUserTable")]
+    partial class ExtendedUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace StudentEnrollment.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4b43c232-78c5-4640-8bec-c493890ff874",
+                            Id = "c9dfe70c-6526-47bf-9ef7-88e2586c9011",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "8bcedbe7-efb9-4dbe-abdb-5c72c13eecf4",
+                            Id = "497c1755-f3c2-4ec8-98d2-e05e03dd2bf1",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -148,18 +151,6 @@ namespace StudentEnrollment.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "9db11d1c-8493-4279-9dd7-0b346a3f7f77",
-                            RoleId = "4b43c232-78c5-4640-8bec-c493890ff874"
-                        },
-                        new
-                        {
-                            UserId = "21bd9497-94f6-484b-b3a9-f59d5c9e1efb",
-                            RoleId = "8bcedbe7-efb9-4dbe-abdb-5c72c13eecf4"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -348,44 +339,6 @@ namespace StudentEnrollment.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "9db11d1c-8493-4279-9dd7-0b346a3f7f77",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3276c310-d4a9-4dfc-a7b2-618ddeb0aa58",
-                            Email = "admin@school.ae",
-                            EmailConfirmed = false,
-                            FirstName = "Sean",
-                            LastName = "ScPickkle",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@SCHOOL.AE",
-                            NormalizedUserName = "ADMIN@SCHOOL.AE",
-                            PasswordHash = "AQAAAAIAAYagAAAAEESXTosrinWnW7O/p/jQw+2TLwKQLuc2azvGoxK2nJ1SE6J6KA4Y1P8HHDSzD345Yw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "d680cb2e-0bea-4e22-8c43-49f313ee13f4",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@school.ae"
-                        },
-                        new
-                        {
-                            Id = "21bd9497-94f6-484b-b3a9-f59d5c9e1efb",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3da7e513-7a6a-40ce-ad10-76117c415fe5",
-                            Email = "principle@school.ae",
-                            EmailConfirmed = false,
-                            FirstName = "Suha",
-                            LastName = "ScPickkles",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "PRINCIPLE@SCHOOL.AE",
-                            NormalizedUserName = "PRINCIPLE@SCHOOL.AE",
-                            PasswordHash = "AQAAAAIAAYagAAAAECEzGW1J8l/KrdR13JNWrF0fc+08jrcQZpNWbQOd1hRFvb2juiJWewOIlJslsZBPbg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "73c7751a-d412-43f0-968d-b6658856aebe",
-                            TwoFactorEnabled = false,
-                            UserName = "principle@school.ae"
-                        });
                 });
 
             modelBuilder.Entity("StudentEnrollment.Data.Models.Student", b =>

@@ -6,6 +6,7 @@ using StudentEnrollment.Data.Models;
 using AutoMapper;
 using StudentEnrollment.Data.Contracts;
 using StudentEnrollment.API.DTOs.Student;
+using StudentEnrollment.API.Services;
 
 namespace StudentEnrollment.API.Endpoints;
 
@@ -46,7 +47,7 @@ public static class StudentEndpoints
         .WithOpenApi();
 
         //Put{id}
-        group.MapPut("/{id}", async Task<Results<NotFound, NoContent>> (int id, StudentDTO student, IStudentRepository repo, IMapper mapper) =>
+        group.MapPut("/{id}", async Task<Results<NotFound, NoContent>> (int id, StudentDTO student, IStudentRepository repo, IMapper mapper, IFileUpload upload) =>
         {
             var foundModel = await repo.GetAsync(id);
 
@@ -56,6 +57,10 @@ public static class StudentEndpoints
             }
 
             mapper.Map(student, foundModel);
+
+            if(student.ProfilePicture != null)
+                foundModel.Pitcure = upload.UploadFile(student.ProfilePicture, student.ProfilePictureUrl); //doesnt handle replacement
+
             await repo.UpdateAsync(foundModel);
 
             return TypedResults.NoContent();
@@ -65,9 +70,11 @@ public static class StudentEndpoints
 
 
         //Post{new}
-        group.MapPost("/", async (StudentDTO model, IStudentRepository repo, IMapper mapper) =>
+        group.MapPost("/", async (StudentDTO model, IStudentRepository repo, IMapper mapper, IFileUpload upload) =>
         {
+            //validation here
             var student = mapper.Map<Student>(model);
+            student.Pitcure = upload.UploadFile(model.ProfilePicture, model.ProfilePictureUrl);
             await repo.CreateAsync(student);
             return TypedResults.Created($"/api/Student/{student.Id}", student);
         })

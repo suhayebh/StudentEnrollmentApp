@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StudentEnrollment.API.Services;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,10 +55,13 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddScoped<IEnrollmentRespository, EnrollementRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository> ();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IFileUpload, FileUpload>();
 
 
 builder.Services.AddCors(options => {
@@ -66,6 +70,8 @@ builder.Services.AddCors(options => {
         .AllowAnyOrigin()
         .AllowAnyMethod());
 });
+
+builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

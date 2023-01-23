@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Azure;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using StudentEnrollment.API.DTOs.Authentication;
@@ -7,6 +10,7 @@ using StudentEnrollment.API.DTOs.Generic;
 using StudentEnrollment.API.Services;
 using StudentEnrollment.Data.Contracts;
 using StudentEnrollment.Data.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StudentEnrollment.API.Endpoints
 {
@@ -16,10 +20,20 @@ namespace StudentEnrollment.API.Endpoints
         {
             var group = routes.MapGroup("/api/auth").WithTags("Authentication");
 
-            group.MapPost("/login", async Task<Results<Ok<AuthResponseDTO>, UnauthorizedHttpResult>> (LoginDTO model, IAuthManager authManager) =>
+            group.MapPost("/login", async Task<Results<Ok<AuthResponseDTO>, BadRequest>> (LoginDTO model, IAuthManager authManager) =>
             {
                 var response = await authManager.Login(model);
-                return response == null ? TypedResults.Unauthorized() : TypedResults.Ok(response);
+                return response == null ? TypedResults.BadRequest() : TypedResults.Ok(response);
+            })
+            .AddEndpointFilter(async (context, next) =>
+            {
+                //check if the return type result doesnt really apply here
+                var loginDTO = context.GetArgument<LoginDTO>(0);
+                LoginDTOValidator validator = new LoginDTOValidator();
+                var validationResult = await validator.ValidateAsync(loginDTO);
+                if (!validationResult.IsValid)
+                    return TypedResults.BadRequest(validationResult.Errors);
+                return await next(context);
             })
             .WithName("Login")
             .WithOpenApi()
@@ -38,5 +52,14 @@ namespace StudentEnrollment.API.Endpoints
             .AllowAnonymous();
         }
 
+        private static List<ErrorResponseDTO> ToErrorDTOList(List<ValidationFailure> errors)
+        {
+            var errorList = new List<ErrorResponseDTO>();
+            foreach (var error in errors)
+            {
+                errorList.Add(new ErrorResponseDTO { Code = error.ErrorCode, Description = error.ErrorMessage });
+            }
+            return errorList;
+        }
     }
 }
